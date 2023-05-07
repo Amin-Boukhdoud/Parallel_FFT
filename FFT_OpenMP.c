@@ -14,10 +14,11 @@
 
 #define PI 3.14159265
 #define bigN 16384 //Problem Size
-#define howmanytimesavg 3 //How many times do I wanna run for the AVG?
+#define howmanytimesavg 8 //How many times do I wanna run for the AVG?
 int main()
 {	
-	double avgtime = 0;
+
+    double avgtime = 0;
 	int h;
 	FILE *outfile;
 	outfile = fopen("sequentialVersionOutput2.txt", "w"); //oepn from current directory
@@ -56,7 +57,7 @@ int main()
 			}
 		}
         //private(i,j,k)
-        #pragma omp parallel for shared(table, evenpart, oddpart)
+        
 		for (k = 0; k < bigN / 2; k++ ) //K loop
 		{	
 			/* Variables used for the computation */
@@ -64,7 +65,7 @@ int main()
 			double sumimageven = 0.0; //sum of imaginary numbers for even
 			double sumrealodd = 0.0; //sum of real numbers for odd
 			double sumimagodd = 0.0; //sum of imaginary numbers for odd
-			
+		    #pragma omp parallel for shared(table, evenpart, oddpart) num_threads(h + 1)	
 			for (i = 0; i <= (bigN/2 - 1); i++) //loop for series 0->N/2 -1
 			{
 				/* -------- EVEN PART -------- */
@@ -120,6 +121,7 @@ int main()
 		double timeElapsed = finish-start; //Time for that iteration
 		avgtime = avgtime + timeElapsed; //AVG the time 
 		fprintf(outfile,"Time Elaspsed on Iteration %d: %f Seconds\n", (h+1),timeElapsed);
+        fprintf(outfile,"Speed Up Factor: %f\n", 7.440998/timeElapsed);
 	}
 	avgtime = avgtime / howmanytimesavg;
 	fprintf(outfile,"\nAverage Time Elaspsed: %f Seconds", avgtime);
